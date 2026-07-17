@@ -19,8 +19,23 @@ Or simply open `index.html` directly in a browser.
 ## Features
 
 - **Sidebar gallery** grouping figures by category.
-- **Labels toggle** to show/hide vertex names, angle marks, and dimension text.
+- **Live controls panel** — every figure exposes adjustable options that redraw
+  instantly. Depending on the figure you can:
+  - toggle labels on/off and **rename any vertex, angle, side, or dimension**;
+  - show/hide angle arcs, equal-side ticks, parallel marks, and right-angle marks;
+  - **choose which altitude** to draw (from vertex A, B, or C) and pick its color;
+  - toggle the dotted side-extension and right-angle foot mark;
+  - select which of the three altitudes appear (colored altitudes);
+  - toggle dashed hidden edges on the 3D solids.
+  - Settings persist while you switch figures; **Reset** restores a figure's defaults.
 - **Download SVG** to export the current figure as a standalone `.svg` file.
+
+## Adding controls to a figure
+
+Each figure declares a `controls` array of descriptors and reads the resolved
+values from `ctx.p` inside `draw`. Available control types (see the `C` helpers
+in `figures.js`): `toggle`, `text`, `select`, `checklist`, and `color`. The app
+renders them automatically into the settings panel.
 
 ## Figures included
 
