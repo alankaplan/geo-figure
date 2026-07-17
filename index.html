@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geometric Figures</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Geometric Figures</h1>
+    <p class="tagline">An interactive gallery of geometry drawings</p>
+  </header>
+
+  <div class="layout">
+    <nav id="sidebar" class="sidebar" aria-label="Figure list"></nav>
+
+    <main class="stage">
+      <div class="stage-toolbar">
+        <div class="stage-titles">
+          <h2 id="figure-title">Select a figure</h2>
+          <p id="figure-desc" class="figure-desc"></p>
+        </div>
+        <div class="stage-actions">
+          <button id="toggle-labels" class="btn" type="button" aria-pressed="true">Labels: on</button>
+          <button id="download-svg" class="btn" type="button">Download SVG</button>
+        </div>
+      </div>
+      <div id="canvas" class="canvas"></div>
+    </main>
+  </div>
+
+  <script src="geometry.js"></script>
+  <script src="figures.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
