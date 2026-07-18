@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Geometric Figures</title>
   <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <header class="app-header">
@@ -23,6 +23,14 @@
           <p id="figure-desc" class="figure-desc"></p>
         </div>
         <div class="stage-actions">
+          <label class="toolbar-field">Label size
+            <select id="label-size" class="toolbar-select">
+              <option value="1">Small</option>
+              <option value="1.2" selected>Medium</option>
+              <option value="1.45">Large</option>
+              <option value="1.75">Extra large</option>
+            </select>
+          </label>
           <button id="reset-figure" class="btn" type="button">Reset</button>
           <button id="download-svg" class="btn" type="button">Download SVG</button>
         </div>
@@ -33,8 +41,8 @@
     <aside id="controls" class="controls" aria-label="Figure options"></aside>
   </div>
 
-  <script src="geometry.js?v=4"></script>
-  <script src="figures.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="geometry.js?v=5"></script>
+  <script src="figures.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

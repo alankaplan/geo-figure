@@ -19,11 +19,13 @@
     desc: document.getElementById("figure-desc"),
     reset: document.getElementById("reset-figure"),
     download: document.getElementById("download-svg"),
+    labelSize: document.getElementById("label-size"),
   };
 
   const state = {
     currentId: null,
     values: {}, // { figureId: { controlKey: value } }
+    labelScale: 1.2, // global label font-size multiplier
   };
 
   const current = () => figures.find((f) => f.id === state.currentId);
@@ -207,6 +209,7 @@
   function renderFigure() {
     const fig = current();
     if (!fig) return;
+    G.setLabelScale(state.labelScale);
     const p = paramsFor(fig);
     const svg = G.el("svg", {
       viewBox: `0 0 ${VIEW_W} ${VIEW_H}`,
@@ -231,6 +234,11 @@
   }
 
   // ----- toolbar -----
+  els.labelSize.addEventListener("change", () => {
+    state.labelScale = Number(els.labelSize.value) || 1;
+    renderFigure();
+  });
+
   els.reset.addEventListener("click", () => {
     const fig = current();
     if (!fig) return;

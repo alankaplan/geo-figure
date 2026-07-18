@@ -197,13 +197,17 @@
     flush();
   }
 
+  // Global multiplier applied to every label's font size (set from the UI).
+  let labelScale = 1;
+  function setLabelScale(s) { labelScale = s > 0 ? s : 1; }
+
   // A text label. Supports `_` subscript syntax (see setLabelContent).
   function label(p, text, opts = {}) {
     const t = el("text", {
       x: p.x + (opts.dx || 0),
       y: p.y + (opts.dy || 0),
       fill: opts.fill || STROKE,
-      "font-size": opts.size || 16,
+      "font-size": +((opts.size || 16) * labelScale).toFixed(2),
       "font-style": opts.italic ? "italic" : null,
       "font-weight": opts.weight || 600,
       "text-anchor": opts.anchor || "middle",
@@ -319,6 +323,6 @@
   global.Geo = {
     NS, V, footOfPerpendicular, el, group, line, polygon, polyline,
     dot, label, vertexLabel, angleArc, rightAngleMark, tickMarks,
-    parallelMarks, defs, palette,
+    parallelMarks, defs, palette, setLabelScale,
   };
 })(window);

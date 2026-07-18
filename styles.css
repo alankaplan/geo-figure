@@ -223,7 +223,28 @@ body {
 .stage-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
+
+.toolbar-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.toolbar-select {
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.toolbar-select:focus { outline: none; border-color: var(--accent); }
 
 .btn {
   border: 1px solid var(--line);
