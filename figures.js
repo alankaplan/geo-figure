@@ -628,7 +628,7 @@
       C.toggle("faces", "Face labels", false, "Faces"),
       C.text("fBottom", "Bottom base", "ABCD", "Faces"),
       C.text("fTop", "Top base", "A_1B_1C_1D_1", "Faces"),
-      C.text("fLat", "Lateral face", "ABB_1A_1", "Faces"),
+      C.text("fLat", "Lateral face", "BCC_1B_1", "Faces"),
       C.toggle("hidden", "Dashed hidden edges", true, "Marks"),
     ],
     draw({ p, show }) {
@@ -645,7 +645,7 @@
       if (p.faces) {
         faceLabel(g, [b.FBL, b.FBR, b.BBR, b.BBL], p.fBottom);
         faceLabel(g, [b.FTL, b.FTR, b.BTR, b.BTL], p.fTop);
-        faceLabel(g, [b.FTL, b.FTR, b.FBR, b.FBL], p.fLat);
+        faceLabel(g, [b.FBR, b.BBR, b.BTR, b.FTR], p.fLat); // right lateral face BCC_1B_1
       }
       if (p.verts) {
         // corners in the same order as the v0..v7 controls
