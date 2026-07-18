@@ -138,6 +138,20 @@
       input.className = "control-text";
       input.addEventListener("input", () => { setValue(fig, c.key, input.value); renderFigure(); });
       row.appendChild(input);
+    } else if (c.type === "number") {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = ctrlId;
+      if (c.min != null) input.min = c.min;
+      if (c.max != null) input.max = c.max;
+      if (c.step != null) input.step = c.step;
+      input.value = value != null ? value : "";
+      input.className = "control-text";
+      input.addEventListener("input", () => {
+        setValue(fig, c.key, input.value === "" ? "" : Number(input.value));
+        renderFigure();
+      });
+      row.appendChild(input);
     } else if (c.type === "color") {
       const input = document.createElement("input");
       input.type = "color";

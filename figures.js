@@ -23,6 +23,7 @@
     select: (key, label, options, def, group) => ({ type: "select", key, label, options, default: def, group }),
     checklist: (key, label, options, def, group) => ({ type: "checklist", key, label, options, default: def, group }),
     color: (key, label, def, group) => ({ type: "color", key, label, default: def, group }),
+    number: (key, label, def, min, max, step, group) => ({ type: "number", key, label, default: def, min, max, step, group }),
   };
 
   // Editable vertex-name text fields, one per default letter.
@@ -664,22 +665,64 @@
     id: "cube",
     name: "Cube",
     category: "3D Solids",
-    description: "A parallelepiped with all edges equal.",
+    description: "A parallelepiped with all edges equal. Labels accept $math$ and subscripts.",
     controls: [
-      C.toggle("labels", "Show edge label", true, "Labels"),
-      C.text("edge", "Edge label", "a", "Labels"),
+      LABELS,
+      C.text("e0", "Bottom edge", "a", "Labels"),
+      C.text("e1", "Vertical edge", "a", "Labels"),
+      C.text("e2", "Depth edge", "a", "Labels"),
       C.toggle("ticks", "Equal-edge ticks", true, "Marks"),
       C.toggle("hidden", "Dashed hidden edges", true, "Marks"),
     ],
     draw({ p, show }) {
       const g = group();
-      drawBox(g, 130, 160, 170, 170, { x: 60, y: -60 }, { hidden: p.hidden });
+      const b = drawBox(g, 130, 160, 170, 170, { x: 60, y: -60 }, { hidden: p.hidden });
+      const c = centroid([b.FTL, b.FTR, b.FBR, b.FBL, b.BTL, b.BTR, b.BBR, b.BBL]);
       if (p.ticks) {
-        g.appendChild(tickMarks({ x: 130, y: 160 }, { x: 300, y: 160 }, 1));
-        g.appendChild(tickMarks({ x: 300, y: 160 }, { x: 300, y: 330 }, 1));
-        g.appendChild(tickMarks({ x: 300, y: 160 }, { x: 360, y: 100 }, 1));
+        g.appendChild(tickMarks(b.FBL, b.FBR, 1));
+        g.appendChild(tickMarks(b.FTL, b.FBL, 1));
+        g.appendChild(tickMarks(b.FBR, b.BBR, 1));
       }
-      if (show && p.edge) g.appendChild(label({ x: 215, y: 148 }, p.edge, { size: 13, fill: palette.helper, weight: 500, italic: true }));
+      if (show) {
+        edgeLabel(g, b.FBL, b.FBR, c, p.e0); // bottom edge
+        edgeLabel(g, b.FTL, b.FBL, c, p.e1); // vertical edge
+        edgeLabel(g, b.FBR, b.BBR, c, p.e2); // depth edge
+      }
+      return g;
+    },
+  });
+
+  add({
+    id: "parallelepiped-sized",
+    name: "Parallelepiped (custom size)",
+    category: "3D Solids",
+    description: "A cuboid whose edge lengths you set; each edge is labelled with its value.",
+    controls: [
+      LABELS,
+      C.number("length", "Length", 6, 1, 20, 1, "Dimensions"),
+      C.number("height", "Height", 4, 1, 20, 1, "Dimensions"),
+      C.number("depth", "Depth", 3, 1, 20, 1, "Dimensions"),
+      C.text("unit", "Unit suffix", "", "Dimensions"),
+      C.toggle("hidden", "Dashed hidden edges", true, "Marks"),
+    ],
+    draw({ p, show }) {
+      const g = group();
+      const W = Math.max(0.5, Number(p.length) || 1);
+      const H = Math.max(0.5, Number(p.height) || 1);
+      const D = Math.max(0.5, Number(p.depth) || 1);
+      const k = 0.45; // depth foreshortening / projection factor
+      const s = Math.min(300 / (W + D * k), 240 / (H + D * k)); // pixels per unit, fit to frame
+      const bbW = (W + D * k) * s, bbH = (H + D * k) * s;
+      const x0 = (480 - bbW) / 2;
+      const y0 = (360 - bbH) / 2 + D * k * s;
+      const b = drawBox(g, x0, y0, W * s, H * s, { x: D * k * s, y: -D * k * s }, { hidden: p.hidden });
+      if (show) {
+        const c = centroid([b.FTL, b.FTR, b.FBR, b.FBL, b.BTL, b.BTR, b.BBR, b.BBL]);
+        const u = p.unit ? " " + p.unit : "";
+        edgeLabel(g, b.FBL, b.FBR, c, W + u); // length
+        edgeLabel(g, b.FTL, b.FBL, c, H + u); // height
+        edgeLabel(g, b.FBR, b.BBR, c, D + u); // depth
+      }
       return g;
     },
   });

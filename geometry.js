@@ -125,24 +125,76 @@
     });
   }
 
-  // Render label text into a <text> node, turning `_x` / `_{xy}` into
-  // subscripts (e.g. "A_1" -> A with a subscript 1).
-  function setLabelContent(node, text) {
+  // Math font stack; falls back to serif italic where math fonts are absent.
+  const MATH_FONT = '"Latin Modern Math","STIX Two Math","Cambria Math","Times New Roman",serif';
+
+  // A small LaTeX-command -> Unicode map for common geometry notation.
+  const COMMANDS = {
+    alpha: "α", beta: "β", gamma: "γ", delta: "δ", epsilon: "ε", zeta: "ζ",
+    eta: "η", theta: "θ", iota: "ι", kappa: "κ", lambda: "λ", mu: "μ", nu: "ν",
+    xi: "ξ", pi: "π", rho: "ρ", sigma: "σ", tau: "τ", phi: "φ", chi: "χ",
+    psi: "ψ", omega: "ω", Gamma: "Γ", Delta: "Δ", Theta: "Θ", Lambda: "Λ",
+    Xi: "Ξ", Pi: "Π", Sigma: "Σ", Phi: "Φ", Psi: "Ψ", Omega: "Ω",
+    times: "×", cdot: "⋅", circ: "°", degree: "°", angle: "∠", triangle: "△",
+    parallel: "∥", perp: "⊥", prime: "′", ldots: "…", cong: "≅", sim: "∼",
+    approx: "≈", neq: "≠", leq: "≤", geq: "≥", pm: "±", to: "→", rightarrow: "→",
+  };
+
+  // Render a label string, supporting a LaTeX-ish subset:
+  //   $...$   math mode (italic math font)
+  //   _x _{x} subscripts,  ^x ^{x} superscripts
+  //   \alpha \triangle \circ ...  -> Unicode symbols
+  // Text outside $...$ stays upright; `A_1` keeps working without $.
+  function setLabelContent(node, raw) {
     node.textContent = "";
-    if (text == null) return;
-    const s = String(text);
-    const re = /_(\{[^}]*\}|.)/g;
-    let last = 0, m;
-    while ((m = re.exec(s)) !== null) {
-      if (m.index > last) node.appendChild(document.createTextNode(s.slice(last, m.index)));
-      let sub = m[1];
-      if (sub.charAt(0) === "{") sub = sub.slice(1, -1);
-      const ts = el("tspan", { "baseline-shift": "sub", "font-size": "0.72em" });
-      ts.textContent = sub;
-      node.appendChild(ts);
-      last = m.index + m[0].length;
+    if (raw == null) return;
+    const s = String(raw);
+    let i = 0, math = false;
+
+    const emit = (str, shift) => {
+      if (!str) return;
+      const attrs = {};
+      if (math) { attrs["font-family"] = MATH_FONT; attrs["font-style"] = "italic"; }
+      if (shift) { attrs["baseline-shift"] = shift; attrs["font-size"] = "0.72em"; }
+      if (!attrs["font-family"] && !attrs["baseline-shift"]) {
+        node.appendChild(document.createTextNode(str));
+      } else {
+        const ts = el("tspan", attrs);
+        ts.textContent = str;
+        node.appendChild(ts);
+      }
+    };
+
+    const readCommand = () => {
+      i++; // skip backslash
+      let name = "";
+      while (i < s.length && /[a-zA-Z]/.test(s[i])) name += s[i++];
+      if (s[i] === " ") i++; // LaTeX swallows one space after a command
+      return COMMANDS[name] !== undefined ? COMMANDS[name] : name;
+    };
+
+    const readAtom = () => {
+      if (s[i] === "{") {
+        i++;
+        let str = "";
+        while (i < s.length && s[i] !== "}") str += s[i] === "\\" ? readCommand() : s[i++];
+        if (s[i] === "}") i++;
+        return str;
+      }
+      return s[i] === "\\" ? readCommand() : s[i++];
+    };
+
+    let buf = "";
+    const flush = () => { emit(buf, null); buf = ""; };
+    while (i < s.length) {
+      const ch = s[i];
+      if (ch === "$") { flush(); math = !math; i++; }
+      else if (ch === "\\") { buf += readCommand(); }
+      else if (ch === "_") { flush(); i++; emit(readAtom(), "sub"); }
+      else if (ch === "^") { flush(); i++; emit(readAtom(), "super"); }
+      else { buf += ch; i++; }
     }
-    if (last < s.length) node.appendChild(document.createTextNode(s.slice(last)));
+    flush();
   }
 
   // A text label. Supports `_` subscript syntax (see setLabelContent).

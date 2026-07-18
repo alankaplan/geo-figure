@@ -26,16 +26,25 @@ Or simply open `index.html` directly in a browser.
   - **choose which altitude** to draw (from vertex A, B, or C) and pick its color;
   - toggle the dotted side-extension and right-angle foot mark;
   - select which of the three altitudes appear (colored altitudes);
-  - toggle dashed hidden edges on the 3D solids.
+  - toggle dashed hidden edges on the 3D solids, label all 8 cuboid vertices
+    and its faces, and **set the edge lengths** of a sized parallelepiped;
   - Settings persist while you switch figures; **Reset** restores a figure's defaults.
+- **Math / LaTeX-style labels** — any label accepts a small LaTeX subset:
+  - `$...$` renders in an italic math font (e.g. `$A$`, `$\triangle ABC$`);
+  - `_x` / `_{xy}` subscripts and `^x` / `^{xy}` superscripts (e.g. `A_1`, `90^\circ`);
+  - `\`-commands for Greek letters and symbols (`\alpha`, `\beta`, `\angle`,
+    `\triangle`, `\times`, `\cdot`, `\circ`, `\perp`, `\parallel`, …).
+
+  It renders natively in SVG — no MathJax/KaTeX dependency — so the app stays
+  self-contained and works offline.
 - **Download SVG** to export the current figure as a standalone `.svg` file.
 
 ## Adding controls to a figure
 
 Each figure declares a `controls` array of descriptors and reads the resolved
 values from `ctx.p` inside `draw`. Available control types (see the `C` helpers
-in `figures.js`): `toggle`, `text`, `select`, `checklist`, and `color`. The app
-renders them automatically into the settings panel.
+in `figures.js`): `toggle`, `text`, `number`, `select`, `checklist`, and `color`.
+The app renders them automatically into the settings panel.
 
 ## Figures included
 
@@ -70,8 +79,9 @@ renders them automatically into the settings panel.
 - Altitude of a trapezoid (the height)
 
 **3D Solids**
-- Rectangular parallelepiped (cuboid; hidden edges dashed)
-- Cube
+- Rectangular parallelepiped (cuboid; hidden edges dashed; vertex + face labels)
+- Parallelepiped (custom size) — set length/height/depth, edges labelled with values
+- Cube (all three edges labelled)
 
 ## Project layout
 
