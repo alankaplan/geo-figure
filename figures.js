@@ -588,25 +588,73 @@
     return { FTL, FTR, FBR, FBL, BTL, BTR, BBR, BBL };
   }
 
+  // Place a dimension label just outside the midpoint of edge a-b, offset away
+  // from the box center so it sits next to (not on) its corresponding line.
+  function edgeLabel(g, a, b, center, text, dist = 22) {
+    if (!text) return;
+    const mid = V.mid(a, b);
+    const dir = V.norm(V.sub(mid, center));
+    const pt = V.add(mid, V.scale(dir, dist));
+    const anchor = dir.x > 0.3 ? "start" : (dir.x < -0.3 ? "end" : "middle");
+    g.appendChild(label(pt, text, { size: 13, fill: palette.helper, weight: 500, anchor }));
+  }
+
+  // Label centered on a face (given its corner points).
+  function faceLabel(g, corners, text) {
+    if (!text) return;
+    g.appendChild(label(centroid(corners), text, { size: 14, fill: palette.accent, weight: 600 }));
+  }
+
   add({
     id: "parallelepiped",
     name: "Rectangular parallelepiped",
     category: "3D Solids",
-    description: "A box (cuboid): 6 rectangular faces. Hidden edges are dashed.",
+    description: "A box (cuboid): 6 rectangular faces. Hidden edges are dashed. Labels accept subscripts (e.g. A_1).",
     controls: [
-      C.toggle("labels", "Show dimension labels", true, "Labels"),
-      C.text("l", "Length label", "length", "Labels"),
-      C.text("h", "Height label", "height", "Labels"),
-      C.text("d", "Depth label", "depth", "Labels"),
+      LABELS,
+      C.toggle("dims", "Dimension labels", true, "Dimensions"),
+      C.text("l", "Length label", "length", "Dimensions"),
+      C.text("h", "Height label", "height", "Dimensions"),
+      C.text("d", "Depth label", "depth", "Dimensions"),
+      C.toggle("verts", "Vertex labels", false, "Vertices"),
+      C.text("v0", "Bottom A", "A", "Vertices"),
+      C.text("v1", "Bottom B", "B", "Vertices"),
+      C.text("v2", "Bottom C", "C", "Vertices"),
+      C.text("v3", "Bottom D", "D", "Vertices"),
+      C.text("v4", "Top A_1", "A_1", "Vertices"),
+      C.text("v5", "Top B_1", "B_1", "Vertices"),
+      C.text("v6", "Top C_1", "C_1", "Vertices"),
+      C.text("v7", "Top D_1", "D_1", "Vertices"),
+      C.toggle("faces", "Face labels", false, "Faces"),
+      C.text("fBottom", "Bottom base", "ABCD", "Faces"),
+      C.text("fTop", "Top base", "A_1B_1C_1D_1", "Faces"),
+      C.text("fLat", "Lateral face", "ABB_1A_1", "Faces"),
       C.toggle("hidden", "Dashed hidden edges", true, "Marks"),
     ],
     draw({ p, show }) {
       const g = group();
-      drawBox(g, 120, 150, 210, 130, { x: 70, y: -55 }, { hidden: p.hidden });
-      if (show) {
-        g.appendChild(label({ x: 225, y: 300 }, p.l, { size: 13, fill: palette.helper, weight: 500 }));
-        g.appendChild(label({ x: 100, y: 225 }, p.h, { size: 13, fill: palette.helper, weight: 500, anchor: "end" }));
-        g.appendChild(label({ x: 380, y: 150 }, p.d, { size: 13, fill: palette.helper, weight: 500, anchor: "start" }));
+      const b = drawBox(g, 120, 150, 210, 130, { x: 70, y: -55 }, { hidden: p.hidden });
+      if (!show) return g;
+      const all = [b.FTL, b.FTR, b.FBR, b.FBL, b.BTL, b.BTR, b.BBR, b.BBL];
+      const c = centroid(all);
+      if (p.dims) {
+        edgeLabel(g, b.FBL, b.FBR, c, p.l); // length: front bottom edge
+        edgeLabel(g, b.FTL, b.FBL, c, p.h); // height: front left edge
+        edgeLabel(g, b.FBR, b.BBR, c, p.d); // depth: bottom-right receding edge
+      }
+      if (p.faces) {
+        faceLabel(g, [b.FBL, b.FBR, b.BBR, b.BBL], p.fBottom);
+        faceLabel(g, [b.FTL, b.FTR, b.BTR, b.BTL], p.fTop);
+        faceLabel(g, [b.FTL, b.FTR, b.FBR, b.FBL], p.fLat);
+      }
+      if (p.verts) {
+        // corners in the same order as the v0..v7 controls
+        const corners = [b.FBL, b.FBR, b.BBR, b.BBL, b.FTL, b.FTR, b.BTR, b.BTL];
+        const names = [p.v0, p.v1, p.v2, p.v3, p.v4, p.v5, p.v6, p.v7];
+        corners.forEach((v, i) => {
+          g.appendChild(dot(v, { r: 2.6 }));
+          if (names[i]) g.appendChild(vertexLabel(v, c, names[i], { offset: 20, size: 14 }));
+        });
       }
       return g;
     },

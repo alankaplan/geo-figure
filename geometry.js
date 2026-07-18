@@ -125,7 +125,27 @@
     });
   }
 
-  // A vertex label offset outward from a reference "inner" point.
+  // Render label text into a <text> node, turning `_x` / `_{xy}` into
+  // subscripts (e.g. "A_1" -> A with a subscript 1).
+  function setLabelContent(node, text) {
+    node.textContent = "";
+    if (text == null) return;
+    const s = String(text);
+    const re = /_(\{[^}]*\}|.)/g;
+    let last = 0, m;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index > last) node.appendChild(document.createTextNode(s.slice(last, m.index)));
+      let sub = m[1];
+      if (sub.charAt(0) === "{") sub = sub.slice(1, -1);
+      const ts = el("tspan", { "baseline-shift": "sub", "font-size": "0.72em" });
+      ts.textContent = sub;
+      node.appendChild(ts);
+      last = m.index + m[0].length;
+    }
+    if (last < s.length) node.appendChild(document.createTextNode(s.slice(last)));
+  }
+
+  // A text label. Supports `_` subscript syntax (see setLabelContent).
   function label(p, text, opts = {}) {
     const t = el("text", {
       x: p.x + (opts.dx || 0),
@@ -138,7 +158,7 @@
       "dominant-baseline": opts.baseline || "middle",
       class: "fig-label" + (opts.class ? " " + opts.class : ""),
     });
-    t.textContent = text;
+    setLabelContent(t, text);
     return t;
   }
 
